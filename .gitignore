@@ -1,0 +1,5 @@
+project/target/*
+target/*
+src/*/scala/fpscala/target/*
+.ensime
+.ensime_cache/*
