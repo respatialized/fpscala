@@ -112,4 +112,6 @@ object Chapter2 {
     (a) => f(g(a))
   }
 
+  val f = (x: Double) => math.Pi / 2 - x
+  val cos = f andThen math.sin
 }
