@@ -4,7 +4,7 @@ package fpscala.datastructures
 
 // the + annotation on the type parameter A indicates that A is a covariant parameter of List.
 // this means that if B is a subtype of A, List[B] is a subtype of List[A].
-// excluding this variance annotation would restrict the scope of List[A] and exclude A's subtypes
+// excluding this variance annotation would restrict the scope of List[A] and exclude A's subtypes.
 sealed trait List[+A]
 case object Nil extends List[Nothing]
 case class Cons[+A](head: A, tail: List[A]) extends List[A]
@@ -35,4 +35,16 @@ object ListExamples {
   // we can consider it to be whatever type we need to
   val ex2: List[Int] = Cons(1, Nil)
   val ex3: List[String] = Cons("a", Cons("b", Nil))
+}
+
+// exercise 3.1, answered correctly
+object ex3pt1 {
+  val x = List(1,2,3,4,5) match {
+    case Cons(x, Cons(2, Cons(4, _))) => x
+    case Nil => 42
+    case Cons(x, Cons(y, Cons(3, Cons(4, _)))) => x + y
+    case Cons(h, t) => h + List.sum(t)
+    case _ => 101
+  }
+  require(x == 3) 
 }
