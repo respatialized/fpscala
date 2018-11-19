@@ -41,7 +41,7 @@ object List {
   }
   // exercise 3.3 - unclear if it's a good idea for the setHead function to modify empty lists
   // once again, the book did it differently than I did and signaled an error. I modified my solution
-  // to be consistent with the tail fn
+  // to be consistent with the tail fn.
   def setHead[A](l: List[A], h: A): List[A] = {
     l match {
       case Nil => Nil
@@ -51,7 +51,7 @@ object List {
 
   // exercise 3.4 - is using ENSIME's type hinter cheating? (answered correctly)
   // I didn't need as much pattern matching as I used here, but it was kinda fun to match on n
-  // while still easily getting drop into the correct tail position
+  // while still easily getting drop into the correct tail position.
   @tailrec
   def drop[A](l: List[A], n: Int): List[A] = {
     l match {
@@ -67,7 +67,7 @@ object List {
   // I didn't get the tail-recursive implementation on the first try.
   // looking at the simpler solution given in the text's answers clued me in to the possibility
   // of putting the call to dropWhile in the tail position by applying a logical not to f in the
-  // second to last case statement
+  // second to last case statement.
   @tailrec
   def dropWhile[A](l: List[A], f: A => Boolean): List[A] = {
     l match {
