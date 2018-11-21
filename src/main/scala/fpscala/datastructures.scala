@@ -64,16 +64,23 @@ object List {
   }
 
   // exercise 3.5 (answered properly)
-  // I didn't get the tail-recursive implementation on the first try.
-  // looking at the simpler solution given in the text's answers clued me in to the possibility
-  // of putting the call to dropWhile in the tail position by applying a logical not to f in the
-  // second to last case statement.
-  @tailrec
-  def dropWhile[A](l: List[A], f: A => Boolean): List[A] = {
+  // I haven't been able to find a tail-recursive solution to this one
+   def dropWhile[A](l: List[A], f: A => Boolean): List[A] = {
     l match {
       case Nil => Nil
-      case Cons(h, t) if !f(h) => l
+      case Cons(h, t) if !f(h) => Cons(h, dropWhile(t, f))
       case Cons(_, t) => dropWhile(t, f)
+    }
+  }
+  // exercise 3.6 (answered properly)
+  // my first answer with four match statements seemed a bit inelegant
+  // turns out that the use of tail was superfluous - you can pattern match
+  // directly on the type signature to achieve the same thing.
+  def init[A](l: List[A]): List[A] = {
+    l match {
+      case Nil => Nil
+      case Cons(_, Nil) => Nil
+      case Cons(h, t) => Cons(h, init(t))
     }
   }
 }
