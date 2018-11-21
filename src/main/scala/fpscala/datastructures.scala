@@ -21,9 +21,17 @@ object List {
 
   def product(ds: List[Double]): Double = ds match {
     case Nil => 1.0
-    case Cons(0.0, _) => 0.0
     case Cons(x, xs) => x * product(xs)
   }
+
+  def foldRight[A,B](as: List[A], z: B)(f: (A, B) => B): B =
+    as match {
+      case Nil => z
+      case Cons(x, xs) => f(x, foldRight(xs, z)(f))
+    }
+
+  def sum2(ns: List[Int]) = foldRight(ns, 0)((x,y) => x + y)
+  def product2(ns: List[Double]) = foldRight(ns, 1.0)((x,y) => x * y)
 
   def apply[A](as: A*): List[A] =
     if (as.isEmpty) Nil
@@ -65,7 +73,11 @@ object List {
 
   // exercise 3.5 (answered quasi-properly)
   // I didn't realize this was supposed to be an operation on just the list prefix, so I
-  // wrote it to operate on every element. read the question carefully!
+  // wrote it to operate on every element of the list. read the question carefully!
+  //
+  // the updated signature of this function is a good intro to grouping arguments in Scala
+  // functions - the type information flows "from left to right" across the argument groups.
+  // seems like you can group the arguments into as many groups as you want!
   @tailrec
    def dropWhile[A](l: List[A])(f: A => Boolean): List[A] = {
     l match {
