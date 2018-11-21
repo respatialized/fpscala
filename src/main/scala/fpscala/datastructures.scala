@@ -63,19 +63,24 @@ object List {
     }
   }
 
-  // exercise 3.5 (answered properly)
-  // I haven't been able to find a tail-recursive solution to this one
-   def dropWhile[A](l: List[A], f: A => Boolean): List[A] = {
+  // exercise 3.5 (answered quasi-properly)
+  // I didn't realize this was supposed to be an operation on just the list prefix, so I
+  // wrote it to operate on every element. read the question carefully!
+  @tailrec
+   def dropWhile[A](l: List[A])(f: A => Boolean): List[A] = {
     l match {
       case Nil => Nil
-      case Cons(h, t) if !f(h) => Cons(h, dropWhile(t, f))
-      case Cons(_, t) => dropWhile(t, f)
+      case Cons(h, t) if f(h) => dropWhile(t)(f)
+      case _ => l
     }
   }
   // exercise 3.6 (answered properly)
   // my first answer with four match statements seemed a bit inelegant
   // turns out that the use of tail was superfluous - you can pattern match
   // directly on the type signature to achieve the same thing.
+
+  // this can't run in constant time because it has to iterate through every element
+  // until it gets to the last Cons containing nil
   def init[A](l: List[A]): List[A] = {
     l match {
       case Nil => Nil
