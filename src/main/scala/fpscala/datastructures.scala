@@ -195,6 +195,130 @@ object List {
     foldRight2(ll, Nil:List[A])((i, acc) => append2(i, acc))
   }
 
+  // exercise 3.16 (answered correctly)
+  //
+  // I got the right answer, but the answer given in the book uses fold, which definitely is
+  // cleaner (if not quite as explicit in its logic as my version)
+  // also, my version isn't tail-recursive.
+  def addOne(l: List[Int]): List[Int] = {
+    l match {
+      case Cons(n, Nil) => Cons(n + 1, Nil)
+      case Cons(n, ls) => Cons(n + 1, addOne(ls))
+      case Nil => Nil
+    }
+  }
+
+  // exercise 3.17 (answered correctly)
+  // it's hard to remember the syntax of foldRight! maybe I should make a flashcard.
+  // I also didn't use a stack-safe version of foldRight at first.
+  def doubleToString(l: List[Double]): List[String] = {
+    foldRight2(l, Nil: List[String])((i, acc) => Cons(i.toString, acc))
+  }
+
+  // exercise 3.18 (answered correctly)
+  // this book really puts an emphasis on building up from concrete cases to abstractions,
+  // both in the chapter sequence and in the sequence of exercises.
+  def map[A, B](as: List[A])(f: A => B): List[B] = {
+    foldRight2(as, Nil: List[B])((a, acc) => Cons(f(a), acc))
+  }
+
+  // exercise 3.19 (answered correctly, but not stack safe)
+  // @tailrec
+  def filter[A](as: List[A])(f: A => Boolean): List[A] = {
+    as match {
+      case Nil => Nil
+      case Cons(h, t) if f(h) => Cons(h, filter(t)(f))
+      case Cons(_, t) => filter(t)(f)
+    }
+  }
+
+  // can I do it using fold? or in a stack-safe way?
+  // I don't know how.
+
+  // it can be done using fold - I just forgot about the fact that using fold and Cons
+  // returns the list itself - cons + fold is isomorphic with the regular list structure
+  // it works because the return type of the fold is  the same as the input type.
+  def filter2[A](as: List[A])(f: A => Boolean): List[A] = {
+    foldRight2(as, Nil: List[A])((h, t) => if (f(h)) Cons(h, t) else t)
+  }
+
+  // exercise 3.20 (answered correctly)
+  // I used foldRight and the book used map, but it's the same idea.
+  def flatMap[A, B](as: List[A])(f: A => List[B]): List[B] = {
+    foldRight2(as, Nil: List[B])((a, acc) => append2(f(a), acc))
+  }
+
+  // exercise 3.21 (works as expected) (answered correctly)
+  // the only difference was that I added a type annotation to Nil.
+  def filter3[A](as: List[A])(f: A => Boolean): List[A] = {
+    flatMap(as)({(a) =>
+                  if (f(a)) List(a) else Nil: List[A]
+                })
+  }
+
+  // exercise 3.22 (works as expected)
+  // once again, the book has a less verbose solution.
+  def addLists(xs: List[Int], ys: List[Int]): List[Int] = {
+    (xs, ys) match {
+      case (xs, ys) if (length(xs) != length(ys)) => sys.error("mismatched list sizes")
+      case (Nil, Nil) => sys.error("empty lists")
+      case (Cons(x, Nil), Cons(y, Nil)) => Cons(x + y, Nil)
+      case (Cons(x, xt), Cons(y, yt)) => Cons(x + y, addLists(xt, yt))
+    }
+  }
+
+  // can I do it in a stack-safe way? the book's answer suggests: no.
+
+  // exercise 3.23 (works as expected)
+  // the book's solution was more general because it took three type parameters.
+  // mine assumed that the input lists were of the same type when that's not necessary to
+  // solve the problem. In general, one benefit of a type system is that it allows you
+  // to solve the problem with the fewest number of assumptions by abstracting them away.
+
+  // remember: even if you add three type annotations, they all can be the same type when the
+  // function is called.
+  def zipWith[A, B, C](xs: List[A], ys: List[B])(f: (A,B) => C): List[C] = {
+    (xs, ys) match {
+      case (xs, ys) if (length(xs) != length(ys)) => sys.error("mismatched list sizes")
+      case (_, Nil) => Nil
+      case (Nil, _) => Nil
+      case (Cons(x, xt), Cons(y, yt)) => Cons(f(x, y), zipWith(xt, yt)(f))
+    }
+  }
+
+  // exercise 3.24 (works as expected)
+  // damn, the ghost of a problem from 4Clojure has come back to haunt me in Scala!
+  // the solution came to me when I realized that for this problem I only need
+  // the subseqs that are the same size as the smaller list
+
+  // the book's solution was better because it did a letter by letter comparison,
+  // pattern matching on the heads of both lists and recursively calling on the tails.
+  // this allowed a stack-safe implementation, which mine definitely is not.
+  def hasSubsequence[A](big: List[A], small: List[A]): Boolean = {
+
+    val subseqs = getSubSeqs(big, length2(small))
+
+    def go[A](l: List[A], small: List[A]): Boolean = {
+      l match {
+        case Cons(h, _) if h == small => true
+        case Cons(_, Nil) => false
+        case Cons(h, t) => go(t, small)
+      }
+    }
+    go(subseqs, small)
+  }
+
+  def getSubSeqs[A](l: List[A], size: Int): List[List[A]] = {
+    def getFirstSubseq[A](l: List[A], size: Int): List[A] = {
+      reverse(drop(reverse(l), length(l) - size))
+    }
+    l match {
+      case Nil => Nil
+      case Cons(i, Nil) if size == 1 => List(List(i))
+      case Cons(i, Nil) => Nil
+      case Cons(h, t) => Cons(getFirstSubseq(l, size), getSubSeqs(t, size))
+    }
+  }
 }
 
 object ListExamples {
@@ -215,4 +339,75 @@ object ex3pt1 {
     case _ => 101
   }
   require(x == 3)
+}
+
+
+sealed trait Tree[+A]
+final case class Branch[A](left: Tree[A], right: Tree[A]) extends Tree[A]
+final case class Leaf[A](value: A) extends Tree[A]
+
+object Tree {
+
+  def apply[A](v: A): Tree[A] = new Leaf[A](v)
+  def apply[A](l: Tree[A], r: Tree[A]): Tree[A] = new Branch[A](l, r)
+
+  // exercise 3.25 (works as expected) (answered correctly)
+
+  // can this be done in a tail-recursive way?
+  // the book suggests no.
+  def count[A](t: Tree[A]): Int = {
+    t match {
+      case Leaf(_) => 1
+      case Branch(l, r) => 1 + count(l) + count(r)
+    }
+  }
+
+  // exercise 3.26 (works as expected) (answered correctly)
+  // the compiler warning about an unhandled case gave me the idea of simplifying the match expression.
+  def maximum(t: Tree[Int]): Int = {
+    t match {
+      case Leaf(n) => n
+      case Branch(l, r) => maximum(l).max(maximum(r))
+    }
+  }
+
+  // exercise 3.27 (works as expected) (answered correctly)
+  // I found this solution to be particularly elegant.
+
+  def depth[A](t: Tree[A]): Int = {
+    t match {
+      case Leaf(_) => 0
+      case Branch(l,r) => 1 + depth(l).max(depth(r))
+    }
+  }
+
+  // exercise 3.28 (works as expected) (answered correctly)
+  def map[A, B](t: Tree[A])(f: A => B): Tree[B] = {
+    t match {
+      case Leaf(v) => Tree(f(v))
+      case Branch(l, r) => Tree(map(l)(f), map(r)(f))
+    }
+  }
+
+  // exercise 3.29 (works as expected) (answered correctly)
+  // this was a really good challenge. I don't know exactly where I got the idea to
+  // break it out into two functions (apart from just focusing hard on the type signatures),
+  // but it certainly helped!
+
+  // definitely proud of myself for this one.
+  def fold[A, B]
+    (t: Tree[A])
+          (fa: A => B) // atomic function (for leaves)
+          (fc: (B, B) => B) // comparing/combining function (for branches)
+      : B = {
+    t match {
+      case Leaf(v) => fa(v)
+      case Branch(l, r) => fc(fold(l)(fa)(fc), fold(r)(fa)(fc))
+    }
+  }
+
+  def countViaFold[A](t: Tree[A]) = fold(t)(x => 1)(_ + _)
+  def maximumViaFold(t: Tree[Int]) = fold(t)(x => x)((x, y) => x.max(y))
+  def depthViaFold[A](t: Tree[A]) = fold(t)(x => 0)((x, y) => 1 + x.max(y))
+  def mapViaFold[A, B](t: Tree[A])(f: A => B): Tree[B] = fold(t)(x => Tree(f(x)))((x, y) => Tree(x, y))
 }
