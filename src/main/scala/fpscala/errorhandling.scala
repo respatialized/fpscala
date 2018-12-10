@@ -58,7 +58,7 @@ object ExceptionExamples {
   //   val optAge: Option[Int] = Try(age.toInt)
   //   val optTickets: Option[Int] = Try(numberOfSpeedingTickets.toInt)
 
-  //   insuranceRateQuote(optAge, optTickets)
+  //   map2(optAge, optTickets)(insuranceRateQuote)
   // }
 
   def Try[A](a: => A): Option[A] =
@@ -69,5 +69,19 @@ object ExceptionExamples {
   // was there a way to do this in terms of map or flatmap?
   def map2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = a.flatMap{aa =>
     b.map(bb => f(aa,bb))
+  }
+
+  // Exercise 4.4 (works properly) (answered incorrectly)
+  // once again, I'm doing pattern matching where flatMap could work instead.
+  // I'm also cheating by using asInstanceOf to get the right type annotation.
+  def sequence[A](a: List[Option[A]]): Option[List[A]] = {
+    val somea = a.map{aa =>
+      aa match {
+        case None => None
+        case Some(a) => a
+      }
+    }
+    if (somea.exists(_ == None)) None
+    else Some(somea.asInstanceOf[List[A]])
   }
 }
