@@ -67,9 +67,11 @@ object ExceptionExamples {
 
   // Exercise 4.3 (answered incorrectly)
   // was there a way to do this in terms of map or flatmap?
-  def map2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = a.flatMap{aa =>
-    b.map(bb => f(aa,bb))
-  }
+  def map2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = for {
+    aa <- a
+    bb <- b
+  } yield f(aa, bb)
+
   object Option {
     // Exercise 4.4 (works properly) (answered incorrectly)
     // once again, I did pattern matching where flatMap could work instead.
