@@ -100,6 +100,8 @@ object ExceptionExamples {
   // once again I'm doing lots of pattern matching. it's hard for me to understand why this
   // isn't the correct way to do it, as the textbook doesn't really offer reasons why it's
   // more idiomatic (apart from maintainability, perhaps)
+
+  // I felt reassured by getting it mostly right with pattern matching this time.
   sealed trait Either[+E, +A] {
     def map[B](f: A => B): Either[E, B] = this match {
       case Left(e)  => Left(e)
@@ -109,15 +111,14 @@ object ExceptionExamples {
       case Right(a) => f(a)
       case Left(e) => Left(e)
     }
-    def orElse[EE >: E, B >: A](b: Either[EE, B]): Either[EE, B] = this match {
-      case Left(e) => Left(e)
-      case Right(b) => Right(b)
+    def orElse[EE >: E, B >: A](b: => Either[EE, B]): Either[EE, B] = this match {
+      case Left(_) => b
+      case Right(a) => Right(a)
     }
-    def map2[EE >: E, B, C](b: Either[EE, B])(f: (A, B) => C): Either[EE, C] = (this, b) match {
-      case (_, Left(e)) => Left(e)
-      case (Left(e), _) => Left(e)
-      case (Right(aa), Right(bb)) => Right(f(aa, bb))
-    }
+    def map2[EE >: E, B, C](b: Either[EE, B])(f: (A, B) => C): Either[EE, C] = for {
+      a <- this
+      bb <- b
+    } yield f(a,b)
   }
   case class Left[+E](value: E) extends Either[E, Nothing]
   case class Right[+A](value: A) extends Either[Nothing, A]
