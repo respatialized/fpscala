@@ -65,13 +65,9 @@ object ExceptionExamples {
     try Some(a)
     catch {case e: Exception => None}
 
-  // Exercise 4.3 (works, but answered incorrectly)
+  // Exercise 4.3 (answered incorrectly)
   // was there a way to do this in terms of map or flatmap?
-  def map2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = {
-    (a, b) match {
-      case (_, None) => None
-      case (None, _) => None
-      case (Some(x), Some(y)) => Some(f(x,y))
-    }
+  def map2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = a.flatMap{aa =>
+    b.map(bb => f(aa,bb))
   }
 }
