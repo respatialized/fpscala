@@ -83,10 +83,10 @@ object ExceptionExamples {
 
     // I didn't use map2. I'm not sure what issues that would cause in practice.
     // I did correctly realize that the identity function is the key to seqFromTraverse, though.
-  def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = a match {
-    case Nil => Some(Nil)
-    case h :: t => f(h).flatMap(hh => traverse(t)(f).map(hh :: _))
-  }
+    def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = a match {
+      case Nil => Some(Nil)
+      case h :: t => map2(f(h), traverse(t)(f))(_ :: _)
+    }
 
     def seqFromTraverse[A](a: List[Option[A]]): Option[List[A]] = traverse(a)((a) => a)
   }
