@@ -1,4 +1,4 @@
-package fpscala.errorhandling
+// package fpscala.errorhandling
 
 import scala.{Option => _, Either => _, _}
 
@@ -41,10 +41,14 @@ object ExceptionExamples {
   // is that it is dealt with by the caller at compile time rather than ambiguously
   // handled at run time.
 
+  // Exercise 4.2 (answered incorrectly)
+  // just because I put a flatMap in the answer, it doesn't mean I implemented variance
+  // in terms of flatMap
   def variance(xs: Seq[Double]): Option[Double] = {
     val m = mean(xs)
-    val demeanseq = m match {
-      case Some(n) => xs.map(Math.pow)
+    m match {
+      case None => None
+      case Some(mm) => Some(mm).flatMap((nums) => mean(xs.map{x => Math.pow(x - mm, 2)}))
     }
   }
 }
