@@ -70,18 +70,24 @@ object ExceptionExamples {
   def map2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = a.flatMap{aa =>
     b.map(bb => f(aa,bb))
   }
-
-  // Exercise 4.4 (works properly) (answered incorrectly)
-  // once again, I'm doing pattern matching where flatMap could work instead.
-  // I'm also cheating by using asInstanceOf to get the right type annotation.
-  def sequence[A](a: List[Option[A]]): Option[List[A]] = {
-    val somea = a.map{aa =>
-      aa match {
-        case None => None
-        case Some(a) => a
-      }
+  object Option {
+    // Exercise 4.4 (works properly) (answered incorrectly)
+    // once again, I did pattern matching where flatMap could work instead.
+    // I also cheated by using asInstanceOf to get the right type annotation.
+    def sequence[A](a: List[Option[A]]): Option[List[A]] = a match {
+      case Nil => Some(Nil)
+      case h :: t => h.flatMap(hh => sequence(t).map(hh :: _))
     }
-    if (somea.exists(_ == None)) None
-    else Some(somea.asInstanceOf[List[A]])
+
+    // Exercise 4.5 (works properly) (answered incorrectly)
+
+    // I didn't use map2. I'm not sure what issues that would cause in practice.
+    // I did correctly realize that the identity function is the key to seqFromTraverse, though.
+  def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = a match {
+    case Nil => Some(Nil)
+    case h :: t => f(h).flatMap(hh => traverse(t)(f).map(hh :: _))
+  }
+
+    def seqFromTraverse[A](a: List[Option[A]]): Option[List[A]] = traverse(a)((a) => a)
   }
 }
