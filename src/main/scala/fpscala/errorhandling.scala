@@ -43,12 +43,9 @@ object ExceptionExamples {
 
   // Exercise 4.2 (answered incorrectly)
   // just because I put a flatMap in the answer, it doesn't mean I implemented variance
-  // in terms of flatMap
-  def variance(xs: Seq[Double]): Option[Double] = {
-    val m = mean(xs)
-    m match {
-      case None => None
-      case Some(mm) => Some(mm).flatMap((nums) => mean(xs.map{x => Math.pow(x - mm, 2)}))
-    }
-  }
+  // in terms of flatMap. The presence of flatMap across the standard library as a method
+  // on most objects and classes made me forget that in the context of this chapter, it's
+  // just a method on the Option type defined in these exercises.
+  def variance(xs: Seq[Double]): Option[Double] =
+    mean(xs).flatMap(m => mean(xs.map(Math.pow(x - m, 2))))
 }
